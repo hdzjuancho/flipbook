@@ -30,9 +30,9 @@
         }
 
         /* 
-           CORRECCIÓN CSS: El contenedor ahora respeta la proporción de doble página.
-           Si una hoja es 1024x576, el libro abierto (2 hojas) mide 2048x576.
-           La relación de aspecto exacta para el contenedor es 32:9.
+            CORRECCIÓN CSS: El contenedor ahora respeta la proporción de doble página.
+            Si una hoja es 1024x576, el libro abierto (2 hojas) mide 2048x576.
+            La relación de aspecto exacta para el contenedor es 32:9.
         */
         .flipbook-container {
             box-shadow: 0 12px 50px rgba(0,0,0,0.8);
@@ -68,8 +68,8 @@
         }
 
         /* 
-           DEGRADADO DEL CENTRO A LA IZQUIERDA (INTEGRADO)
-           Capa protectora que fuerza el box-shadow exacto por encima de imágenes y colores.
+            DEGRADADO DEL CENTRO A LA IZQUIERDA (INTEGRADO)
+            Capa protectora que fuerza el box-shadow exacto por encima de imágenes y colores.
         */
         .my-page::after {
             content: '';
@@ -116,7 +116,7 @@
 
         <div id="flipbook" class="flipbook-container">
             <!-- Tus páginas secuenciales -->
-<!-- Portada: Página Roja -->
+            <!-- Portada: Página Roja -->
             <div class="my-page"><div class="page-color" style="background-color: #FF2121;"></div></div>
             
             <!-- Contraportada interna: Página Blanca -->
@@ -153,11 +153,15 @@
         </div>
     </div>
 
+    <!-- Elemento de audio oculto -->
+    <audio id="flip-sound" src="page-flip.mp3" preload="auto"></audio>
+
     <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
 
     <script>
         window.addEventListener('load', function() {
             const htmlElement = document.getElementById('flipbook');
+            const audio = document.getElementById('flip-sound');
 
             // CORRECCIÓN JAVASCRIPT: Ajustamos las dimensiones base al tamaño real de una sola hoja (1024x576)
             const pageFlip = new St.PageFlip(htmlElement, {
@@ -174,6 +178,15 @@
             });
 
             pageFlip.loadFromHTML(document.querySelectorAll('.my-page'));
+
+            // EFECTO DE SONIDO: Se dispara cada vez que una página empieza a pasar
+            pageFlip.on('flip', (e) => {
+                audio.currentTime = 0; // Reinicia el audio por si pasan páginas rápido
+                audio.play().catch(error => {
+                    // Evita errores visibles si el navegador intenta reproducir antes del primer clic real
+                    console.log("Audio en espera de interacción del usuario.");
+                });
+            });
 
             // Navegación
             document.getElementById('btn-prev').addEventListener('click', () => pageFlip.flipPrev());
