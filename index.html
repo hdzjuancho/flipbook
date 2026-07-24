@@ -30,23 +30,15 @@
             background-color: #0b0b0b;
         }
 
-        /* 
-           SOLUCIÓN DEFINITIVA: El contenedor DEBE tener la misma relación de aspecto
-           que el libro abierto (2 páginas de 1024x576 = 2048x576).
-           Esto hace que la librería calcule un desplazamiento interno de 0px,
-           evitando que la primera y última página se suban.
-        */
         .flipbook-container {
             box-shadow: 0 12px 50px rgba(0,0,0,0.8);
             background-color: #1a1a1a;
             width: 90vw;
             max-width: 1600px;
-            /* Proporción exacta basada en tus medidas de JS (2048 / 576) */
             aspect-ratio: 2048 / 576; 
             display: block;
         }
 
-        /* Ajustes para pantallas muy altas o pantallas completas */
         @media (aspect-ratio < 2048/576) {
             .flipbook-container {
                 width: 90vw;
@@ -71,7 +63,6 @@
             position: relative;
         }
 
-        /* Mantener la proporción original de las imágenes sin deformar */
         .my-page img {
             width: 100%;
             height: 100%;
@@ -118,6 +109,7 @@
         .click-zone.left { left: 0; }
         .click-zone.right { right: 0; }
 
+        /* MODIFICACIÓN DEL BOTÓN: Ahora es un contenedor cuadrado y minimalista */
         .fullscreen-btn {
             position: absolute;
             top: 20px;
@@ -126,15 +118,15 @@
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
-            padding: 10px 14px;
+            width: 44px;  /* Ancho fijo para que sea perfectamente cuadrado */
+            height: 44px; /* Alto fijo */
             border-radius: 8px;
             cursor: pointer;
-            font-size: 0.9rem;
             backdrop-filter: blur(5px);
             transition: background 0.2s, transform 0.1s;
             display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: center; /* Centra el icono perfectamente */
         }
         .fullscreen-btn:hover {
             background: rgba(255, 255, 255, 0.2);
@@ -142,16 +134,21 @@
         .fullscreen-btn:active {
             transform: scale(0.95);
         }
+        /* Hacemos el SVG un pelín más grande para que luzca bien solo */
+        .fullscreen-btn svg {
+            width: 20px;
+            height: 20px;
+        }
     </style>
 </head>
 <body>
 
     <div class="flipbook-viewport" id="viewport">
-        <button class="fullscreen-btn" id="btn-fullscreen">
+        <!-- El botón ahora solo contiene el elemento SVG del icono -->
+        <button class="fullscreen-btn" id="btn-fullscreen" title="Pantalla completa">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" id="fs-icon">
                 <path d="M1.5 1v3a.5.5 0 0 0 1 0v-2h2a.5.5 0 0 0 0-1h-3zm13 0h-3a.5.5 0 0 0 0 1h2v2a.5.5 0 0 0 1 0v-3zM1.5 15h3a.5.5 0 0 0 0-1h-2v-2a.5.5 0 0 0-1 0v3zm13 0v-3a.5.5 0 0 0-1 0v2h-2a.5.5 0 0 0 0 1h3z"/>
             </svg>
-            <span id="fs-text">Pantalla completa</span>
         </button>
 
         <div class="click-zone left" id="btn-prev">‹</div>
@@ -202,10 +199,8 @@
             const viewport = document.getElementById('viewport');
             const audio = document.getElementById('flip-sound');
             const btnFullscreen = document.getElementById('btn-fullscreen');
-            const fsText = document.getElementById('fs-text');
             const fsIcon = document.getElementById('fs-icon');
 
-            // Mantenemos stretch para la flexibilidad de las imágenes
             const pageFlip = new St.PageFlip(htmlElement, {
                 width: 1024,         
                 height: 576,         
@@ -239,10 +234,12 @@
 
             const updateFullscreenUI = () => {
                 if (document.fullscreenElement || document.webkitFullscreenElement) {
-                    fsText.textContent = "Salir";
+                    // Cambia al icono de "des-maximizar"
+                    btnFullscreen.title = "Salir de pantalla completa";
                     fsIcon.innerHTML = `<path d="M5.5 0a.5.5 0 0 1 .5.5v4A1.5 1.5 0 0 1 4.5 6h-4a.5.5 0 0 1 0-1h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 1 .5-.5zm5 0a.5.5 0 0 1 .5.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 10 4.5v-4a.5.5 0 0 1 .5-.5zM0 10.5a.5.5 0 0 1 .5-.5h4A1.5 1.5 0 0 1 6 11.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 1-.5-.5zm10 1a1.5 1.5 0 0 1 1.5-1.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0v-4z"/>`;
                 } else {
-                    fsText.textContent = "Pantalla completa";
+                    // Cambia al icono de "maximizar" original
+                    btnFullscreen.title = "Pantalla completa";
                     fsIcon.innerHTML = `<path d="M1.5 1v3a.5.5 0 0 0 1 0v-2h2a.5.5 0 0 0 0-1h-3zm13 0h-3a.5.5 0 0 0 0 1h2v2a.5.5 0 0 0 1 0v-3zM1.5 15h3a.5.5 0 0 0 0-1h-2v-2a.5.5 0 0 0-1 0v3zm13 0v-3a.5.5 0 0 0-1 0v2h-2a.5.5 0 0 0 0 1h3z"/>`;
                 }
                 
@@ -258,7 +255,7 @@
                 pageFlip.update();
             });
 
-            // Control de audios e interacciones
+            // Sonidos e interacción
             let lastSoundTime = 0;
             function playSoundInstant() {
                 const now = Date.now();
@@ -286,7 +283,7 @@
             document.addEventListener('keydown', (e) => {
                 if (pageFlip.getState() !== 'read') return;
                 if (e.key === 'ArrowRight' || e.key === 'd') { playSoundInstant(); pageFlip.flipNext(); }
-                if (e.key === 'ArrowLeft' || e.key === 'a') { playSoundInstant(); pageFlip.flipPrev(); }
+                if (e.key === 'ArrowLeft' || e.key === 'a') { playSoundInstant(); playSoundInstant(); pageFlip.flipPrev(); }
             });
 
             htmlElement.addEventListener('mousedown', (e) => {
