@@ -179,13 +179,16 @@
 
             pageFlip.loadFromHTML(document.querySelectorAll('.my-page'));
 
-            // EFECTO DE SONIDO: Se dispara cada vez que una página empieza a pasar
-            pageFlip.on('flip', (e) => {
-                audio.currentTime = 0; // Reinicia el audio por si pasan páginas rápido
-                audio.play().catch(error => {
-                    // Evita errores visibles si el navegador intenta reproducir antes del primer clic real
-                    console.log("Audio en espera de interacción del usuario.");
-                });
+            // EFECTO DE SONIDO: Detecta el momento exacto en el que cambia el estado del libro
+            pageFlip.on('onChangeState', (e) => {
+                // "flipping" es el estado inicial justo cuando la hoja empieza a levantarse
+                if (e.data === 'flipping') {
+                    audio.currentTime = 0; // Reinicia el audio por si pasan páginas rápido
+                    audio.play().catch(error => {
+                        // Evita errores si el navegador bloquea la reproducción por falta de interacción inicial
+                        console.log("Audio en espera de interacción del usuario.");
+                    });
+                }
             });
 
             // Navegación
